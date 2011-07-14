@@ -1,3 +1,4 @@
+require "open-uri"
 module WebsocketNotifierPatch
   def self.included(base)
     base.send(:include, InstanceMethods)
@@ -8,12 +9,14 @@ module WebsocketNotifierPatch
   end
   module InstanceMethods
     def send_to_websocket
-      logger.info "===================="
-      logger.info "calling websocket..."
-      logger.info self.event_title
-      logger.info self.event_description
-      logger.info self.event_url
-      logger.info "===================="
+      message = "#{event_title}\n#{event_title}"
+      publish_message(message)
+    end
+
+    private
+    def publish_message(message)
+      url = "http://localhost:18082/?message=#{URI.escape(message)}"
+      open(url){|x| puts x}
     end
   end
 end
