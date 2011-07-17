@@ -1,10 +1,14 @@
 require 'redmine'
 require 'websocket_notifier_patch'
 require 'dispatcher'
+require 'em-websocket'
+
 Dispatcher.to_prepare :redmine_websocket_notifer do
+  ws = WebsocketServer.new
   Redmine::Activity.default_event_types.each do |event|
     Redmine::Activity.providers[event].each do |clazz|
       clazz.constantize.send(:include, WebsocketNotifierPatch)
+      clazz.constantize.websocket_server = ws
     end
   end
 end
@@ -17,3 +21,5 @@ Redmine::Plugin.register :redmine_websocket_notifier do
   url 'https://github.com/suer/redmine_websocket_notifier'
   author_url 'http://d.hatena.ne.jp/suer'
 end
+
+

@@ -4,19 +4,15 @@ module WebsocketNotifierPatch
     base.send(:include, InstanceMethods)
     base.class_eval do
       unloadable
-      after_create :send_to_websocket    
+      after_create :send_message    
+      puts self.class
+      cattr_accessor :websocket_server
     end
   end
   module InstanceMethods
-    def send_to_websocket
-      message = "#{event_title}\n#{event_title}"
-      publish_message(message)
-    end
-
-    private
-    def publish_message(message)
-      url = "http://localhost:18082/?message=#{URI.escape(message)}"
-      open(url){|x| puts x}
+    def send_message
+      message = "#{event_title}\n#{event_description}"
+      self.class.websocket_server.send_message(message, logger)
     end
   end
 end
