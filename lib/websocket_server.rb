@@ -1,46 +1,44 @@
 require 'rubygems'
 require 'em-websocket'
-require 'singleton'
+require 'sinatra'
 
 class WebsocketServer
-  include Singleton
 
   def initialize
     @connections = []
     @messages = []
-    @connection_queue = Queue.new
-    @message_queue = Queue.new
-    start_websocket_server
   end
 
-  def send_message(message, logger)
-    until @connection_queue.empty?
-      con = @connection_queue.pop
-      @connections << con unless @connections.include?(con)
-    end
-    @messages.push(message)
-    @connections.each {|con| con.send(message) } 
-  end
-
-  private
   def start_websocket_server
-    @server_thread = Thread.new do
-      EventMachine::WebSocket.start(:host => "127.0.0.1", :port => 18082, :debug => true) do |ws|
-        ws.onopen { 
-          @connection_queue << ws
-          @messages.each {|prev| ws.send(prev)}
-        }
+    EventMachine::WebSocket.start(:host => "127.0.0.1", :port => 18082, :debug => true) do |ws|
+      ws.onopen { 
+        @connections << ws
+        @@messages.each {|prev| ws.send(prev)}
+      }
 
-        ws.onmessage {|msg|
-          @messages.delete_if{|prev| msg == prev} 
-          @messages.push(msg)
-          @connections.each {|con| con.send(msg) unless con == ws} 
-        }
+      ws.onmessage {|msg|
+        @messages.delete_if{|prev| msg == prev} 
+        @messages.push(msg)
+        @connections.each {|con| con.send(msg) unless con == ws} 
+      }
 
-        ws.onclose {
-          @connections.delete_if{|con| con == ws} 
-        }
-      end
+      ws.onclose {
+        @connections.delete_if{|con| con == ws} 
+      }
     end
   end
+
+  def start_web_server
+    get '/message' do
+      @messages << params[:activity]
+    end
+  end
+end
+
+if __FILE__ == $0
+  server = WebsocketServer.new
+  Thread.start do
+    server.start_websocket_server
+  end
+  server.start_web_server
 end
