@@ -1,0 +1,5 @@
+websocket:
+  host: 127.0.0.1
+  client_side_port: 18082
+  redmine_side_port: 4567
+  use_ssl: false
