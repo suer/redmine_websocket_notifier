@@ -12,7 +12,7 @@ module WebsocketNotifierPatch
   module InstanceMethods
     def send_message
       message = "#{event_title}\n#{event_description}"
-      self.class.websocket_server.send_message(message, logger)
+      open("http://localhost:4567/message?activity=#{URI.escape(message)}")
     end
   end
 end

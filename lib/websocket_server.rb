@@ -3,9 +3,7 @@ require 'em-websocket'
 require 'sinatra'
 
 class WebsocketServer
-  def initialize
-    @@connections = []
-  end
+  @@connections = []
 
   def start_websocket_server
     EventMachine::WebSocket.start(:host => "127.0.0.1", :port => 18082, :debug => true) do |ws|

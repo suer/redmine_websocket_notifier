@@ -4,11 +4,9 @@ require 'dispatcher'
 require 'em-websocket'
 
 Dispatcher.to_prepare :redmine_websocket_notifer do
-  ws = WebsocketServer.instance
   Redmine::Activity.default_event_types.each do |event|
     Redmine::Activity.providers[event].each do |clazz|
       clazz.constantize.send(:include, WebsocketNotifierPatch)
-      clazz.constantize.websocket_server = ws
     end
   end
 end
