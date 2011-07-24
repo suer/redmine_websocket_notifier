@@ -21,10 +21,10 @@ module WebsocketNotifierPatch
   module InstanceMethods
     def send_message
       protocol = self.class.websocket_config['websocket']['use_ssl'] ? 'https' : 'http'
-      host = self.class.websocket_config['websocket']['host'] || '127.0.0.1'
-      port = self.class.websocket_config['websocket']['redmine_side_port'] || '4567'
-      message = "#{event_title}\n#{event_description}"
-      url = "#{protocol}://#{host}:#{port}/?message=#{URI.escape(message)}"
+      host = self.class.websocket_config['websocket']['host']
+      port = self.class.websocket_config['websocket']['redmine_side_port']
+      url = "#{protocol}://#{host}:#{port}/?title=#{URI.escape(event_title)}&message=#{URI.escape(event_description)}"
+      puts url
       begin
         open(url)
       rescue

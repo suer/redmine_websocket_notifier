@@ -23,8 +23,12 @@ module WebsocketNotifier
       end
     end
 
-    def self.notify_message(message)
-      @@connections.each {|con| con.send(message)} 
+    def self.notify_message(title, message)
+      # TODO escape quote characters
+      json = '{"title": "' + title + '"' + ', "message": "'
+      json +=  message.split.join unless message.nil?
+      json += '"}'
+      @@connections.each {|con| con.send(json)} 
     end
 
     def self.config
@@ -38,7 +42,7 @@ module WebsocketNotifier
         set :port, port
       end
       get '/' do
-        WebsocketNotifier::WebsocketServer::notify_message params[:message]
+        WebsocketNotifier::WebsocketServer::notify_message(params[:title], params[:message])
         ""
       end
     end
