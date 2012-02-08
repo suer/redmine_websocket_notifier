@@ -1,7 +1,0 @@
-= issues_websocket_notifier
-
-Description goes here
-
-
-== requirements
-* em-websocket 0.3.0 or higher
